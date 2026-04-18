@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/broadcast_model.dart';
 import '../../admin/services/broadcast_service.dart';
-import 'parent_notifications_screen.dart';
+import '../screens/parent_notifications_screen.dart';
 
 class ParentNotificationBell extends StatefulWidget {
   final String parentUid;
-  final String busId; // Best to provide the busId if possible, or we resolve inside. For bell, we can resolve or stream all and just count global. Let's just stream global for now or pass busId if available.
 
   const ParentNotificationBell({
     super.key,
     required this.parentUid,
-    required this.busId,
   });
 
   @override
@@ -49,8 +48,18 @@ class _ParentNotificationBellState extends State<ParentNotificationBell> {
       return _buildStaticBell(); // Loading
     }
 
-    return StreamBuilder<List<BroadcastModel>>(
-      stream: BroadcastService().streamForParent(widget.busId, widget.parentUid),
+    // Resolve busId dynamically
+    return FutureBuilder<String>(
+      future: FirebaseFirestore.instance
+          .collection('students')
+          .where('parentId', isEqualTo: widget.parentUid)
+          .limit(1)
+          .get()
+          .then((s) => s.docs.isEmpty ? '' : (s.docs.first.data()['busId'] as String? ?? '')),
+      builder: (context, busSnap) {
+        final busId = busSnap.data ?? '';
+        return StreamBuilder<List<BroadcastModel>>(
+          stream: BroadcastService().streamForParent(busId, widget.parentUid),
       builder: (context, snap) {
         final broadcasts = snap.data ?? [];
         int unreadCount = 0;
@@ -98,6 +107,8 @@ class _ParentNotificationBellState extends State<ParentNotificationBell> {
                 ),
             ],
           ),
+        );
+      },
         );
       },
     );

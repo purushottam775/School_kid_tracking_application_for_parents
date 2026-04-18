@@ -56,7 +56,7 @@ class _ParentNotificationsScreenState extends State<ParentNotificationsScreen> {
         builder: (context, busSnap) {
           final busId = busSnap.data ?? '';
           return StreamBuilder<List<BroadcastModel>>(
-            stream: service.streamForParent(busId, parentUid),
+            stream: service.streamForParent(busId, widget.parentUid),
             builder: (context, snap) {
               if (snap.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());

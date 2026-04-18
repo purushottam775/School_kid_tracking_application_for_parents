@@ -8,11 +8,9 @@ import '../../../shared/models/student_model.dart';
 import '../../../shared/models/trip_model.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/constants/app_routes.dart';
-import '../../admin/services/broadcast_service.dart';
 import '../widgets/parent_notification_bell.dart';
 import 'add_edit_student_screen.dart';
 import 'parent_map_screen.dart';
-import 'parent_notifications_screen.dart';
 
 class ParentHomeScreen extends StatelessWidget {
   const ParentHomeScreen({super.key});
@@ -55,7 +53,6 @@ class ParentHomeScreen extends StatelessWidget {
                     // ── Notification Bell with live badge ──────────────────
                     ParentNotificationBell(
                       parentUid: user?.uid ?? '',
-                      busId: hasStudents ? students.first.busId : '',
                     ),
                     const SizedBox(width: 10),
                     GestureDetector(
